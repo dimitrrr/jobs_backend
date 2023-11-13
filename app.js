@@ -2,6 +2,13 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 app.use(express.json());
+const cors = require('cors');
+app.use(cors());
+const bcryptjs = require('bcryptjs');
+
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = 'da23hkj235ksdf98gsdodgs34t-s]dg-]=|sgd/sdf,scxfdsd--243tewfds';
 
 const mongoUrl = `mongodb+srv://admin:test@cluster0.iy3fwj2.mongodb.net/`;
 
@@ -13,34 +20,63 @@ app.listen(1234, () => {
     console.log('Server started!')
 });
 
-app.post('/post', async (req, res) => {
-    
-    const { data } = req.body;
-
-    try {
-        if(data === 'hello') {
-            res.send( { status: 'ok' });
-        } else {
-            res.send({ status: 'User not found' });
-        }
-    } catch (error) {
-        res.send({ status: 'error' });
-    }
-
-});
-
 require('./schemas/userSchema.js');
 
-const User = mongoose.model('Users');
+const Users = mongoose.model('Users');
 
 app.post('/register', async(req, res) => {
 
-    const { username, email, password } = req.body;
+    const { username, email, password, timeZone } = req.body;
+
+    const encryptedPassword = await bcryptjs.hash(password, 10);
 
     try {
-        await User.create({ username, email, password });
-        res.send({ status: 'Ok' });
+        const oldUser = await Users.findOne({ email });
+
+        if(oldUser) {
+            return res.json({ status: 'User already exist'});
+        }
+
+        await Users.create({ username, email, password: encryptedPassword, timeZone });
+        res.json({ status: 'Ok' });
     } catch(error) {
-        res.send({ status: 'Error' });
+        res.json({ status: 'error', error: 'cannot register' });
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    const user = await Users.findOne({ email });
+
+    if(!user) {
+        return res.json({ error: 'User not found'});
+    }
+
+    if(await bcryptjs.compare(password, user.password)) {
+        const token = jwt.sign({}, JWT_SECRET);
+
+        if(res.status(201)) {
+            return res.json({ status: 'ok', data: token });
+        } else {
+            return res.json({ status: 'error' });
+        }
+    }
+
+    return res.json({ status: 'error', error: 'invalid password' });
+
+});
+
+app.post('/userData', async (req, res) => {
+    const { token } = req.body;
+    try {
+        const user = jwt.verify(token, JWT_SECRET);
+        Users.findOne({ email: user.email }).then((data) => {
+            res.send({ status: 'ok', data });
+        }).catch(error => {
+            res.send({ status: 'error', data: error })
+        })
+    } catch(error) {
+        console.log(error)
     }
 });
