@@ -50,28 +50,42 @@ app.post('/login', async (req, res) => {
     const user = await Users.findOne({ email });
 
     if(!user) {
-        return res.json({ error: 'User not found'});
+        return res.json({ status: 'error', data: 'User not found'});
     }
 
     if(await bcryptjs.compare(password, user.password)) {
-        const token = jwt.sign({}, JWT_SECRET);
+        const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+            expiresIn: 1000000000000,
+        });
 
         if(res.status(201)) {
             return res.json({ status: 'ok', data: token });
         } else {
-            return res.json({ status: 'error' });
+            return res.json({ status: 'error', data: 'not logged in' });
         }
     }
 
-    return res.json({ status: 'error', error: 'invalid password' });
+    return res.json({ status: 'error', data: 'invalid password' });
 
 });
 
 app.post('/userData', async (req, res) => {
     const { token } = req.body;
+    
     try {
-        const user = jwt.verify(token, JWT_SECRET);
-        Users.findOne({ email: user.email }).then((data) => {
+        const user = jwt.verify(token, JWT_SECRET, (err, res) => {
+            if(err) {
+                return 'token expired';
+            }
+
+            return res;
+        });
+
+        if(user === 'token expired') {
+            return res.send({ status: 'error', data: 'token expired' });
+        }
+
+        await Users.findOne({ email: user.email }).then((data) => {
             res.send({ status: 'ok', data });
         }).catch(error => {
             res.send({ status: 'error', data: error })
