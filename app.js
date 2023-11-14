@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-app.use(express.json());
+app.use(express.json( { limit: 10000000000 }));
 const cors = require('cors');
 app.use(cors());
 const bcryptjs = require('bcryptjs');
@@ -21,8 +21,16 @@ app.listen(1234, () => {
 });
 
 require('./schemas/userSchema.js');
+require('./schemas/candidateSchema.js');
+require('./schemas/vacancySchema.js');
+require('./schemas/feedbackSchema.js');
+require('./schemas/CVSchema.js');
 
 const Users = mongoose.model('Users');
+const Candidates = mongoose.model('Candidates');
+const Vacancies = mongoose.model('Vacancies');
+const Feedback = mongoose.model('Feedback');
+const CVs = mongoose.model('CVs');
 
 app.post('/register', async(req, res) => {
 
@@ -37,7 +45,7 @@ app.post('/register', async(req, res) => {
             return res.json({ status: 'User already exist'});
         }
 
-        await Users.create({ username, email, password: encryptedPassword, timeZone });
+        await Users.create({ username, email, password: encryptedPassword, timeZone, company: '' });
         res.json({ status: 'Ok' });
     } catch(error) {
         res.json({ status: 'error', error: 'cannot register' });
@@ -54,7 +62,7 @@ app.post('/login', async (req, res) => {
     }
 
     if(await bcryptjs.compare(password, user.password)) {
-        const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
             expiresIn: 1000000000000,
         });
 
@@ -85,12 +93,85 @@ app.post('/userData', async (req, res) => {
             return res.send({ status: 'error', data: 'token expired' });
         }
 
-        await Users.findOne({ email: user.email }).then((data) => {
+        await Users.findOne({ _id: user._id }).then((data) => {
             res.send({ status: 'ok', data });
         }).catch(error => {
             res.send({ status: 'error', data: error })
         })
     } catch(error) {
         console.log(error)
+    }
+});
+
+app.post('/updateUser', async (req, res) => {
+    const { _id, username, email, timeZone, company } = req.body;
+    try {
+        await Users.updateOne({_id: _id}, {
+            $set: {
+                username,
+                email,
+                timeZone,
+                company,
+            }
+        })
+
+        return res.json({status: 'ok', data: 'updated'});
+    } catch(error) {
+        return res.json({ status: 'error', data: error });
+    }
+});
+
+app.post('/postedVacancies', async (req, res) => {
+    const { token } = req.body;
+    const user = jwt.verify(token, JWT_SECRET, (err, res) => {
+        if(err) {
+            return 'token expired';
+        }
+
+        return res;
+    });
+
+    if(user === 'token expired') {
+        return res.send({ status: 'error', data: 'token expired' });
+    }
+
+    try {
+        const vacancies = await Vacancies.find().populate('employer').populate('candidates');
+
+        return res.json({ status: 'ok', data: vacancies });
+    } catch(error) {
+        return res.json({ status: 'error', data: error });
+    }
+});
+
+app.post('/createVacancy', async(req, res) => {
+
+    const { employer, name, text, tags, testTaskLink } = req.body;
+
+    try {
+
+        await Vacancies.create({ employer, name, text, tags, testTaskLink, candidates: [], status: 'active' });
+        res.json({ status: 'Ok' });
+    } catch(error) {
+        res.json({ status: 'error', error: 'cannot create vacancy' });
+    }
+});
+
+app.post('/updateVacancy', async (req, res) => {
+    const { _id, name, status, tags, text, testTaskLink } = req.body;
+    try {
+        await Vacancies.updateOne({_id: _id}, {
+            $set: {
+                name,
+                status,
+                tags,
+                text,
+                testTaskLink,
+            }
+        })
+
+        return res.json({status: 'ok', data: 'updated'});
+    } catch(error) {
+        return res.json({ status: 'error', data: error });
     }
 });
