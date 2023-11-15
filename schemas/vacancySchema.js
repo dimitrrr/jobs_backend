@@ -6,7 +6,6 @@ const VacancySchema = new mongoose.Schema({
     status: String,
     name: String,
     tags: [String],
-    candidates: [{ type: mongoose.Types.ObjectId, ref: 'Users' }],
     testTaskLink: String,
 }, {
     collection: 'Vacancies',

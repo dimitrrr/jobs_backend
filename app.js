@@ -45,10 +45,10 @@ app.post('/register', async(req, res) => {
             return res.json({ status: 'User already exist'});
         }
 
-        await Users.create({ username, email, password: encryptedPassword, timeZone, company: '' });
+        await Users.create({ username, email, password: encryptedPassword, timeZone, company: '', savedUsers: [], savedVacancies: [], hiddenVacancies: [] });
         res.json({ status: 'Ok' });
     } catch(error) {
-        res.json({ status: 'error', error: 'cannot register' });
+        res.json({ status: 'error', data: error });
     }
 });
 
@@ -93,27 +93,23 @@ app.post('/userData', async (req, res) => {
             return res.send({ status: 'error', data: 'token expired' });
         }
 
-        await Users.findOne({ _id: user._id }).then((data) => {
-            res.send({ status: 'ok', data });
-        }).catch(error => {
-            res.send({ status: 'error', data: error })
-        })
+        await Users.findOne({ _id: user._id }).populate('savedUsers').populate('savedVacancies').populate('hiddenVacancies')
+            .then((data) => {
+                res.send({ status: 'ok', data });
+            }).catch(error => {
+                res.send({ status: 'error', data: error })
+            });
     } catch(error) {
         console.log(error)
     }
 });
 
 app.post('/updateUser', async (req, res) => {
-    const { _id, username, email, timeZone, company } = req.body;
+    const { _id, username, email, timeZone, company, hiddenVacancies, savedVacancies, savedUsers } = req.body;
     try {
         await Users.updateOne({_id: _id}, {
-            $set: {
-                username,
-                email,
-                timeZone,
-                company,
-            }
-        })
+            $set: { username, email, timeZone, company, hiddenVacancies, savedVacancies, savedUsers }
+        });
 
         return res.json({status: 'ok', data: 'updated'});
     } catch(error) {
@@ -136,7 +132,7 @@ app.post('/postedVacancies', async (req, res) => {
     }
 
     try {
-        const vacancies = await Vacancies.find().populate('employer').populate('candidates');
+        const vacancies = await Vacancies.find().populate('employer');
 
         return res.json({ status: 'ok', data: vacancies });
     } catch(error) {
@@ -153,7 +149,7 @@ app.post('/createVacancy', async(req, res) => {
         await Vacancies.create({ employer, name, text, tags, testTaskLink, candidates: [], status: 'active' });
         res.json({ status: 'Ok' });
     } catch(error) {
-        res.json({ status: 'error', error: 'cannot create vacancy' });
+        res.json({ status: 'error', data: error });
     }
 });
 
@@ -171,6 +167,68 @@ app.post('/updateVacancy', async (req, res) => {
         })
 
         return res.json({status: 'ok', data: 'updated'});
+    } catch(error) {
+        return res.json({ status: 'error', data: error });
+    }
+});
+
+app.post('/searchVacanciesByName', async (req, res) => {
+    const { name, userId } = req.body;
+
+    try {
+        const vacancies = await Vacancies.find().populate('employer');
+
+        const filteredVacanciesByName = vacancies.filter(v => v.name.toLowerCase().includes(name.toLowerCase()));
+        const filteredVacanciesByUserId = userId ? filteredVacanciesByName.filter(v => v.employer._id !== userId) : filteredVacanciesByName;
+
+        return res.json({ status: 'ok', data: filteredVacanciesByUserId });
+    } catch(error) {
+        return res.json({ status: 'error', data: error });
+    }
+});
+
+app.post('/addCandidate', async(req, res) => {
+
+    const { employee, vacancy, text, CV, expectations, testTaskLink } = req.body;
+
+    try {
+        await Candidates.create({ employee, vacancy, CV, text, expectations, testTaskLink, status: 'pending' });
+        res.json({ status: 'Ok' });
+    } catch(error) {
+        res.json({ status: 'error', data: error });
+    }
+});
+
+app.post('/removeCandidate', async(req, res) => {
+    const { _id } = req.body;
+
+    try {
+        await Candidates.findOneAndDelete({_id});
+        res.json({ status: 'Ok' });
+    } catch(error) {
+        console.log('error', error)
+        res.json({ status: 'error', data: error });
+    }
+});
+
+app.post('/candidates', async (req, res) => {
+    const { token } = req.body;
+    const user = jwt.verify(token, JWT_SECRET, (err, res) => {
+        if(err) {
+            return 'token expired';
+        }
+
+        return res;
+    });
+
+    if(user === 'token expired') {
+        return res.send({ status: 'error', data: 'token expired' });
+    }
+
+    try {
+        const candidates = await Candidates.find().populate('employee').populate('vacancy').populate('CV');
+
+        return res.json({ status: 'ok', data: candidates });
     } catch(error) {
         return res.json({ status: 'error', data: error });
     }
