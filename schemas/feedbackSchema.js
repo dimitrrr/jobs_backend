@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const FeedbackSchema = new mongoose.Schema({
-    fromUserId: String,
-    toUserId: String,
+    fromUser: { type: mongoose.Types.ObjectId, ref: 'Users' },
+    aboutUser: { type: mongoose.Types.ObjectId, ref: 'Users' },
     mark: Number,
     text: String,
+    sender: String,
+    timestamp: { type: Date },
 }, {
     collection: 'Feedback',
 });
