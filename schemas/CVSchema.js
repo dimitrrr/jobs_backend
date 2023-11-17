@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const CVSchema = new mongoose.Schema({
-    userId: String,
+    employee: { type: mongoose.Types.ObjectId, ref: 'Users' },
     data: String,
 }, {
     collection: 'CVs',

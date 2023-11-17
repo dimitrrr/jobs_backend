@@ -334,3 +334,16 @@ app.post('/createFeedback', async(req, res) => {
       res.json({ status: 'error', data: error });
   }
 });
+
+app.post('/getAddedCVsById', async (req, res) => {
+
+  const { _id } = req.body;
+
+  try {
+      const CVs = await CVs.find({employee: _id}).populate('employee');
+
+      return res.json({ status: 'ok', data: CVs });
+  } catch(error) {
+      return res.json({ status: 'error', data: error });
+  }
+});
