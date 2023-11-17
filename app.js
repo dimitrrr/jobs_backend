@@ -5,6 +5,10 @@ app.use(express.json( { limit: 10000000000 }));
 const cors = require('cors');
 app.use(cors());
 const bcryptjs = require('bcryptjs');
+const pdf = require('html-pdf');
+const fs = require('fs');
+
+const pdfTemplate = require('./documents');
 
 const jwt = require('jsonwebtoken');
 
@@ -314,11 +318,11 @@ app.post('/getFeedbackAboutUserById', async (req, res) => {
   const { userId } = req.body
 
   try {
-      const feedback = await Feedback.find({ aboutUser: userId }).populate('fromUser').populate('aboutUser');
+    const feedback = await Feedback.find({ aboutUser: userId }).populate('fromUser').populate('aboutUser');
 
-      return res.json({ status: 'ok', data: feedback });
+    return res.json({ status: 'ok', data: feedback });
   } catch(error) {
-      return res.json({ status: 'error', data: error });
+    return res.json({ status: 'error', data: error });
   }
 });
 
@@ -337,12 +341,64 @@ app.post('/createFeedback', async(req, res) => {
 
 app.post('/getAddedCVsById', async (req, res) => {
 
-  const { _id } = req.body;
+  const { employee } = req.body;
 
   try {
-      const CVs = await CVs.find({employee: _id}).populate('employee');
+      const result = await CVs.find({employee}).populate('employee');
 
-      return res.json({ status: 'ok', data: CVs });
+      return res.json({ status: 'ok', data: result });
+  } catch(error) {
+    console.log(error)
+      return res.json({ status: 'error', data: error });
+  }
+});
+
+app.post('/createPdf', async (req, res) => {
+  const { CVData, employee, timestamp } = req.body;
+
+  try {
+    const CV = await CVs.create({ CVData, employee, timestamp });
+
+    pdf.create(pdfTemplate(CVData), {}).toFile(`pdfs/CV_${employee}_${CV._id}.pdf`, (error) => {
+
+      if(error) {
+        return res.json({ status: 'error', data: error });
+      }
+  
+      return res.json({ status: 'ok', data: CV });
+    });
+  } catch(error) {
+    return res.json({ status: 'error', data: error });
+  }
+});
+
+app.post('/fetchCreatedPdf', (req, res) => {
+  const { CVid, employeeId } = req.body;
+
+  res.sendFile(`${__dirname}/pdfs/CV_${employeeId}_${CVid}.pdf`);
+});
+
+app.post('/removeCV', async(req, res) => {
+  const { employeeId, CVid } = req.body;
+
+  try {
+      await CVs.findOneAndDelete({_id: CVid});
+
+      const path = `${__dirname}/pdfs/CV_${employeeId}_${CVid}.pdf`;
+      fs.unlinkSync(path);
+
+      res.json({ status: 'ok', data: 'CV deleted' });
+  } catch(error) {
+      res.json({ status: 'error', data: error });
+  }
+});
+
+app.post('/postedCVs', async (req, res) => {
+
+  try {
+      const result = await CVs.find().populate('employee');
+
+      return res.json({ status: 'ok', data: result });
   } catch(error) {
       return res.json({ status: 'error', data: error });
   }

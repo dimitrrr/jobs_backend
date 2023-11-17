@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const CVSchema = new mongoose.Schema({
     employee: { type: mongoose.Types.ObjectId, ref: 'Users' },
-    data: String,
+    CVData: mongoose.Schema.Types.Mixed,
+    timestamp: { type: Date },
 }, {
     collection: 'CVs',
 });
