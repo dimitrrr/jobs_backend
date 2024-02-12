@@ -5,7 +5,7 @@ const VacancySchema = new mongoose.Schema({
     text: String,
     status: String,
     name: String,
-    tags: [String],
+    tags: [mongoose.Schema.Types.Mixed],
     testTaskLink: String,
 }, {
     collection: 'Vacancies',
