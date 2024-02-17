@@ -1,5 +1,13 @@
 module.exports = (CVData) => {
-	const { first_name, last_name, city, country, phone, email, postal_code, role, degree, field_of_study, school_name, school_location, graduation_month, graduation_year, school_mark, job_title, employer, job_start_date, job_end_date, job_description, professional_skills, self_characteristics, languages, sertificates, portfolio, custom_fields } = CVData;
+	const { first_name = '', last_name = '', city = '', country = '', phone = '', email = '', 
+	postal_code = '', role = '', degree = '', field_of_study = '', school_name = '', 
+	school_location = '', graduation_month = '', graduation_year = '', school_mark = '', job_title = '', 
+	employer = '', job_start_date = '', job_end_date = '', job_description = '', skills = [], self_characteristics = '', 
+	languages = [], sertificates = '', portfolio = '', additionalFields = [] } = CVData;
+
+	const skillsText = skills.map(ps => `<li>${ps.name}-${ps.value}</li>`).join('');
+	const languagesText = languages.map(l => `<li>${l.name}-${l.value}</li>`).join('');
+	const additionalFieldsText = additionalFields.map(af => `<div class="talent"><h2>${af.name}</h2><p>${af.value}</p></div>`).join('');
 
 	return `
     <!doctype html>
@@ -54,8 +62,7 @@ module.exports = (CVData) => {
 										</div>
 										<div class="yui-u">
 											<ul class="talent">
-												<li>${professional_skills}</li>
-												<li>${professional_skills}</li>
+												${skillsText}
 											</ul>
 										</div>
 									</div>
@@ -105,15 +112,17 @@ module.exports = (CVData) => {
 										<h2>Додатково</h2>
 									</div>
 									<div class="yui-u">
-
 											<div class="talent">
 												<h2>Знання мов</h2>
-												<p>${languages}</p>
+												<ul>
+													${languagesText}
+												</ul>
 											</div>
 
 											<div class="talent">
-												<h2>Сертифікати</h2>
-												<p>${sertificates}</p>
+												<h2>
+													<a href=${sertificates}>Сертифікати</a>
+												</h2>
 											</div>
 
 											<div class="talent">
@@ -121,6 +130,8 @@ module.exports = (CVData) => {
 													<a href=${portfolio}>Портфоліо</a>
 												</h2>
 											</div>
+
+											${additionalFieldsText}
 									</div>
 								</div>
 
