@@ -1,13 +1,18 @@
 module.exports = (CVData) => {
 	const { first_name = '', last_name = '', city = '', country = '', phone = '', email = '', 
 	postal_code = '', role = '', degree = '', field_of_study = '', school_name = '', 
-	school_location = '', graduation_month = '', graduation_year = '', school_mark = '', job_title = '', 
-	employer = '', job_start_date = '', job_end_date = '', job_description = '', skills = [], self_characteristics = '', 
+	school_location = '', graduation_date = '', school_mark = '', job_title = '', 
+	employer = '', job_start_date = '', job_end_date = '', job_description = '', still_working = '', skills = [], self_characteristics = '', 
 	languages = [], sertificates = '', portfolio = '', additionalFields = [] } = CVData;
 
-	const skillsText = skills.map(ps => `<li>${ps.name}-${ps.value}</li>`).join('');
+	const skillsText = skills.map(ps => `<li>${ps.name} - ${ps.value}</li>`).join('');
 	const languagesText = languages.map(l => `<li>${l.name}-${l.value}</li>`).join('');
 	const additionalFieldsText = additionalFields.map(af => `<div class="talent"><h2>${af.name}</h2><p>${af.value}</p></div>`).join('');
+	const jobStartDateText = job_start_date ? new Date(job_start_date).toLocaleDateString() : '';
+	const jobEndDateText = still_working ? '' : job_end_date ? new Date(job_end_date).toLocaleDateString() : '';
+	const graduationDate = new Date(graduation_date || null);
+	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	const graduationDateText = graduation_date ? `${months[graduationDate.getMonth()]}, ${graduationDate.getFullYear()}` : '';
 
 	return `
     <!doctype html>
@@ -87,7 +92,7 @@ module.exports = (CVData) => {
 											<div class="job last">
 												<h2>${employer}</h2>
 												<h3>${job_title}</h3>
-												<h4>${job_start_date}-${job_end_date}</h4>
+												<h4>${jobStartDateText} - ${jobEndDateText}</h4>
 												<p>${job_description}</p>
 											</div>
 
@@ -102,7 +107,7 @@ module.exports = (CVData) => {
 										<div class="yui-u">
 											<h2>${school_name}, ${school_location}</h2>
 											<h3>${degree}</h3>
-											<h4>${graduation_month}.${graduation_year}</h4>
+											<h4>${graduationDateText}</h4>
 											<h3>${field_of_study} &mdash; <strong>${school_mark} GPA</strong> </h3>
 										</div>
 									</div>
