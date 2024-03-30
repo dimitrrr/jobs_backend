@@ -7,6 +7,7 @@ const VacancySchema = new mongoose.Schema({
     name: String,
     tags: [mongoose.Schema.Types.Mixed],
     testTaskLink: String,
+    payment: String,
 }, {
     collection: 'Vacancies',
 });
