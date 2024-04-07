@@ -358,7 +358,7 @@ app.post('/createPdf', async (req, res) => {
   const { CVData, employee, timestamp } = req.body;
 
   try {
-    const CV = await CVs.create({ CVData, employee, timestamp });
+    const CV = await CVs.create({ CVData, employee, timestamp, visible: true });
 
     pdf.create(pdfTemplate(CVData), {}).toFile(`pdfs/CV_${employee}_${CV._id}.pdf`, (error) => {
 
@@ -400,6 +400,22 @@ app.post('/postedCVs', async (req, res) => {
       const result = await CVs.find().populate('employee');
 
       return res.json({ status: 'ok', data: result });
+  } catch(error) {
+      return res.json({ status: 'error', data: error });
+  }
+});
+
+app.post('/updateCV', async (req, res) => {
+  const { _id, CVData, visible } = req.body;
+  try {
+      await CVs.updateOne({_id: _id}, {
+          $set: {
+            CVData,
+            visible,
+          }
+      })
+
+      return res.json({status: 'ok', data: 'CV Updated'});
   } catch(error) {
       return res.json({ status: 'error', data: error });
   }
