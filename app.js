@@ -8,7 +8,8 @@ const bcryptjs = require('bcryptjs');
 const pdf = require('html-pdf');
 const fs = require('fs');
 
-const pdfTemplate = require('./documents');
+const pdfTemplate_ukrainian = require('./documents/template_ukrainian.js');
+const pdfTemplate_english = require('./documents/template_english.js');
 
 const jwt = require('jsonwebtoken');
 
@@ -360,7 +361,9 @@ app.post('/createPdf', async (req, res) => {
   try {
     const CV = await CVs.create({ CVData, employee, timestamp, visible: true });
 
-    pdf.create(pdfTemplate(CVData), {}).toFile(`pdfs/CV_${employee}_${CV._id}.pdf`, (error) => {
+    const templateByLanguage = CVData.CV_language === 'ENGLISH' ? pdfTemplate_english : pdfTemplate_ukrainian;
+
+    pdf.create(templateByLanguage(CVData), {}).toFile(`pdfs/CV_${employee}_${CV._id}.pdf`, (error) => {
 
       if(error) {
         return res.json({ status: 'error', data: error });

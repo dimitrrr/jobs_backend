@@ -9,7 +9,7 @@ module.exports = (CVData) => {
 	const languagesText = languages.map(l => `<li>${l.name}-${l.value}</li>`).join('');
 	const additionalFieldsText = additionalFields.map(af => `<div class="talent"><h2>${af.name}</h2><p>${af.value}</p></div>`).join('');
 	const jobStartDateText = job_start_date ? new Date(job_start_date).toLocaleDateString() : '';
-	const jobEndDateText = still_working ? 'Досі працюю' : job_end_date ? new Date(job_end_date).toLocaleDateString() : '';
+	const jobEndDateText = still_working ? 'Still working' : job_end_date ? new Date(job_end_date).toLocaleDateString() : '';
 	const graduationDate = new Date(graduation_date || null);
 	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	const graduationDateText = graduation_date ? `${months[graduationDate.getMonth()]}, ${graduationDate.getFullYear()}` : '';
@@ -105,38 +105,38 @@ module.exports = (CVData) => {
 						${city && country ? `<p>${city}, ${country}</p>` : ''}
 						${phone ? `<p>${phone}</p>` : ''}
 						${email ? `<p>${email}</p>` : ''}
-						${postal_code ? `<p><strong>Поштовий індекс:</strong> ${postal_code}</p>` : ''}
+						${postal_code ? `<p><strong>Postal index:</strong> ${postal_code}</p>` : ''}
 					</div>
 				` : ''}
 				
 				${job_title ? `
 					<div class="job-history">
-						<h2>Досвід роботи</h2>
+						<h2>Job experience</h2>
 						<div class="job-item">
-							${job_title ? `<p><strong>Посада:</strong> ${job_title}</p>` : ''}
-							${employer ? `<p><strong>Роботодавець:</strong> ${employer}</p>` : ''}
-							${jobStartDateText ? `<p><strong>Дата початку:</strong> ${jobStartDateText}</p>` : ''}
-							${jobEndDateText ? `<p><strong>Дата закінчення:</strong> ${jobEndDateText}</p>` : ''}
-							${job_description ? `<p><strong>Опис:</strong> ${job_description}</p>` : ''}
+							${job_title ? `<p><strong>Job title:</strong> ${job_title}</p>` : ''}
+							${employer ? `<p><strong>Employer:</strong> ${employer}</p>` : ''}
+							${jobStartDateText ? `<p><strong>Start date:</strong> ${jobStartDateText}</p>` : ''}
+							${jobEndDateText ? `<p><strong>End date:</strong> ${jobEndDateText}</p>` : ''}
+							${job_description ? `<p><strong>Description:</strong> ${job_description}</p>` : ''}
 						</div>
 					</div>
 				` : ''}
 				
 				${degree && field_of_study && graduationDate ? `
 					<div class="education">
-						<h2>Освіта</h2>
-						${degree ? `<p><strong>Ступінь:</strong> ${degree}</p>` : ''}
-						${field_of_study ? `<p><strong>Галузь:</strong> ${field_of_study}</p>` : ''}
-						${school_name ? `<p><strong>Навчальний заклад:</strong> ${school_name}</p>` : ''}
-						${school_location ? `<p><strong>Місце розташування:</strong> ${school_location}</p>` : ''}
-						${graduationDateText ? `<p><strong>Дата закінчення:</strong> ${graduationDateText}</p>` : ''}
-						${school_mark ? `<p><strong>Середній бал:</strong> ${school_mark}</p>` : ''}
+						<h2>Education</h2>
+						${degree ? `<p><strong>Degree:</strong> ${degree}</p>` : ''}
+						${field_of_study ? `<p><strong>Field of study:</strong> ${field_of_study}</p>` : ''}
+						${school_name ? `<p><strong>University name:</strong> ${school_name}</p>` : ''}
+						${school_location ? `<p><strong>Location:</strong> ${school_location}</p>` : ''}
+						${graduationDateText ? `<p><strong>Graduation date:</strong> ${graduationDateText}</p>` : ''}
+						${school_mark ? `<p><strong>Average mark:</strong> ${school_mark}</p>` : ''}
 					</div>
 				` : ''}
 				
 				${skills && skills.length ? `
 					<div class="skills">
-						<h2>Навички</h2>
+						<h2>Skills</h2>
 						${skills.map(skill => `
 							<div class="skill-item">
 								<span>${skill.name}:</span> ${skill.value}
@@ -147,7 +147,7 @@ module.exports = (CVData) => {
 				
 				${languages && languages.length ? `
 					<div class="languages">
-						<h2>Мови</h2>
+						<h2>Languages</h2>
 						${languages.map(language => `
 							<div class="language-item">
 								<span>${language.name}:</span> ${language.value}
@@ -158,7 +158,7 @@ module.exports = (CVData) => {
 				
 				${additionalFields && additionalFields.length ? `
 					<div class="additional-info">
-						<h2>Додаткова інформація</h2>
+						<h2>Additional information</h2>
 						${additionalFields.map(field => `
 							<div class="additional-info-item">
 								<span>${field.name}:</span> ${field.value}
@@ -169,16 +169,16 @@ module.exports = (CVData) => {
 				
 				${self_characteristics ? `
 					<div class="self-characteristics">
-						<h2>Характеристика</h2>
+						<h2>Self characteristics</h2>
 						<p>${self_characteristics}</p>
 					</div>
 				` : ''}
 				
 				${sertificates || portfolio ? `
 					<div class="links">
-						<h2>Посилання</h2>
-						${sertificates ? `<p><a href="${sertificates}" target="_blank">Сертифікати</a></p>` : ''}
-						${portfolio ? `<p><a href="${portfolio}" target="_blank">Портфоліо</a></p>` : ''}
+						<h2>Links</h2>
+						${sertificates ? `<p><a href="${sertificates}" target="_blank">Certificates</a></p>` : ''}
+						${portfolio ? `<p><a href="${portfolio}" target="_blank">Portfolio</a></p>` : ''}
 					</div>
 				` : ''}
 			</div>
