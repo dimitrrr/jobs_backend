@@ -376,7 +376,7 @@ app.post('/createPdf', async (req, res) => {
 
     pdf.create(templateByLanguage(CVData), {}).toBuffer(async (error, result) => {
       if(error) {
-        return res.json({ status: 'error', data: {error, 'msg': 'error1'} });
+        return res.json({ status: 'error', data: {CVData} });
       };
 
       const CV = await CVs.create({ CVData, employee, timestamp, file: result, visible: true });
