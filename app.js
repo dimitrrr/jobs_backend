@@ -376,7 +376,7 @@ app.post('/createPdf', async (req, res) => {
 
     pdf.create(templateByLanguage(CVData), {}).toBuffer(async (error, result) => {
       if(error) {
-        return res.json({ status: 'error', data: error });
+        return res.json({ status: 'error', data: {error, 'msg': 'error1'} });
       };
 
       const CV = await CVs.create({ CVData, employee, timestamp, file: result, visible: true });
@@ -393,7 +393,7 @@ app.post('/createPdf', async (req, res) => {
       //   return res.json({ status: 'ok', data: CV });
       // });
   } catch(error) {
-    return res.json({ status: 'error', data: error });
+    return res.json({ status: 'error', data: {error, msg: 'error2'} });
   }
 });
 
