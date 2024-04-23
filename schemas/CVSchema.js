@@ -5,6 +5,7 @@ const CVSchema = new mongoose.Schema({
     CVData: mongoose.Schema.Types.Mixed,
     timestamp: { type: Date },
     visible: { type: Boolean, default: true },
+    file: Buffer,
 }, {
     collection: 'CVs',
 });

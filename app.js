@@ -8,7 +8,7 @@ const pdf = require('html-pdf');
 const fs = require('fs');
 
 const corsOptions = {
-  origin: 'https://jobs-crk3.onrender.com',
+  origin: ['https://jobs-crk3.onrender.com', 'http://localhost:3000'],
   optionsSuccessStatus: 200,
 };
 
@@ -371,18 +371,27 @@ app.post('/createPdf', async (req, res) => {
   const { CVData, employee, timestamp } = req.body;
 
   try {
-    const CV = await CVs.create({ CVData, employee, timestamp, visible: true });
 
     const templateByLanguage = CVData.CV_language === 'ENGLISH' ? pdfTemplate_english : pdfTemplate_ukrainian;
 
-    pdf.create(templateByLanguage(CVData), {}).toFile(`pdfs/CV_${employee}_${CV._id}.pdf`, (error) => {
-
+    pdf.create(templateByLanguage(CVData), {}).toBuffer(async (error, result) => {
       if(error) {
         return res.json({ status: 'error', data: error });
-      }
-  
-      return res.json({ status: 'ok', data: CV });
-    });
+      };
+
+      const CV = await CVs.create({ CVData, employee, timestamp, file: result, visible: true });
+        return res.json({ status: 'ok', data: CV });
+      });
+
+    
+      // .toFile(`pdfs/CV_${employee}_${CV._id}.pdf`, (error) => {
+
+      //   if(error) {
+      //     return res.json({ status: 'error', data: error });
+      //   }
+    
+      //   return res.json({ status: 'ok', data: CV });
+      // });
   } catch(error) {
     return res.json({ status: 'error', data: error });
   }
@@ -391,7 +400,7 @@ app.post('/createPdf', async (req, res) => {
 app.post('/fetchCreatedPdf', (req, res) => {
   const { CVid, employeeId } = req.body;
 
-  res.sendFile(`${__dirname}/pdfs/CV_${employeeId}_${CVid}.pdf`);
+  // res.sendFile(`${__dirname}/pdfs/CV_${employeeId}_${CVid}.pdf`);
 });
 
 app.post('/removeCV', async(req, res) => {
@@ -400,8 +409,8 @@ app.post('/removeCV', async(req, res) => {
   try {
       await CVs.findOneAndDelete({_id: CVid});
 
-      const path = `${__dirname}/pdfs/CV_${employeeId}_${CVid}.pdf`;
-      fs.unlinkSync(path);
+      // const path = `${__dirname}/pdfs/CV_${employeeId}_${CVid}.pdf`;
+      // fs.unlinkSync(path);
 
       res.json({ status: 'ok', data: 'CV deleted' });
   } catch(error) {
