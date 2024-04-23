@@ -374,7 +374,7 @@ app.post('/createPdf', async (req, res) => {
 
     const templateByLanguage = CVData.CV_language === 'ENGLISH' ? pdfTemplate_english : pdfTemplate_ukrainian;
 
-    pdf.create(templateByLanguage(CVData), {}).toFile(async (error, result) => {
+    await pdf.create(templateByLanguage(CVData), {}).toBuffer(async (error, result) => {
       if(error) {
         return res.json({ status: 'error', data: error });
       };
