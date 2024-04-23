@@ -8,6 +8,7 @@ const VacancySchema = new mongoose.Schema({
     tags: [mongoose.Schema.Types.Mixed],
     testTaskLink: String,
     payment: String,
+    timestamp: { type: Date },
 }, {
     collection: 'Vacancies',
 });

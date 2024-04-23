@@ -194,11 +194,11 @@ app.post('/getVacancyAndCandidateById', async (req, res) => {
 
 app.post('/createVacancy', async(req, res) => {
 
-    const { employer, name, text, tags, testTaskLink, payment } = req.body;
+    const { employer, name, text, tags, testTaskLink, payment, timestamp } = req.body;
 
     try {
 
-        await Vacancies.create({ employer, name, text, tags, testTaskLink, payment, candidates: [], status: 'active' });
+        await Vacancies.create({ employer, name, text, tags, testTaskLink, payment, candidates: [], timestamp, status: 'active' });
         res.json({ status: 'ok', data: 'Vacancy created' });
     } catch(error) {
         res.json({ status: 'error', data: error });
@@ -242,10 +242,10 @@ app.post('/searchVacanciesByName', async (req, res) => {
 
 app.post('/addCandidate', async(req, res) => {
 
-    const { employee, vacancy, text, CV, expectations, testTaskLink } = req.body;
+    const { employee, vacancy, text, CV, expectations, testTaskLink, timestamp } = req.body;
 
     try {
-        await Candidates.create({ employee, vacancy, CV, text, expectations, testTaskLink, status: 'pending' });
+        await Candidates.create({ employee, vacancy, CV, text, expectations, testTaskLink, timestamp, status: 'pending' });
         res.json({ status: 'ok', data: 'Candidate created' });
     } catch(error) {
         res.json({ status: 'error', data: error });

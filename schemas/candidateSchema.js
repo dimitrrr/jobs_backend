@@ -8,6 +8,7 @@ const CandidateSchema = new mongoose.Schema({
     expectations: String,
     testTaskLink: String,
     status: String,
+    timestamp: { type: Date },
 }, {
     collection: 'Candidates',
 });
