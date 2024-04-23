@@ -8,7 +8,7 @@ const pdf = require('html-pdf');
 const fs = require('fs');
 
 const corsOptions = {
-  origin: ['https://jobs-crk3.onrender.com', 'http://localhost:3000'],
+  origin: 'https://jobs-crk3.onrender.com',
   optionsSuccessStatus: 200,
 };
 
@@ -375,9 +375,9 @@ app.post('/createPdf', async (req, res) => {
     const templateByLanguage = CVData.CV_language === 'ENGLISH' ? pdfTemplate_english : pdfTemplate_ukrainian;
 
     pdf.create(templateByLanguage(CVData), {}).toBuffer(async (error, result) => {
-      // if(error) {
-      //   return res.json({ status: 'error', data: { test: 'test', templateByLanguage, result} });
-      // };
+      if(error) {
+        return res.json({ status: 'error', data: error });
+      };
 
       const CV = await CVs.create({ CVData, employee, timestamp, file: result, visible: true });
       return res.json({ status: 'ok', data: CV });
@@ -393,7 +393,7 @@ app.post('/createPdf', async (req, res) => {
       //   return res.json({ status: 'ok', data: CV });
       // });
   } catch(error) {
-    return res.json({ status: 'error', data: {error, msg: 'error2'} });
+    return res.json({ status: 'error', data: error });
   }
 });
 
