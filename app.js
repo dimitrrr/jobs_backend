@@ -3,10 +3,16 @@ const app = express();
 const mongoose = require('mongoose');
 app.use(express.json( { limit: 10000000000 }));
 const cors = require('cors');
-app.use(cors());
 const bcryptjs = require('bcryptjs');
 const pdf = require('html-pdf');
 const fs = require('fs');
+
+const corsOptions = {
+  origin: 'https://jobs-crk3.onrender.com',
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 require('dotenv').config()
 
 const pdfTemplate_ukrainian = require('./documents/template_ukrainian.js');
