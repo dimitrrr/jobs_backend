@@ -374,13 +374,15 @@ app.post('/createPdf', async (req, res) => {
 
     const templateByLanguage = CVData.CV_language === 'ENGLISH' ? pdfTemplate_english : pdfTemplate_ukrainian;
 
-    pdf.create(templateByLanguage(CVData), {}).toBuffer( (error, result) => {
+    pdf.create(templateByLanguage(CVData), {}).toFile(async (error, result) => {
       if(error) {
-        return res.json({ status: 'error', data: templateByLanguage(CVData) });
+        return res.json({ status: 'error', data: error });
       };
 
       // const CV = await CVs.create({ CVData, employee, timestamp, file: result, visible: true });
-      return res.json({ status: 'ok', data: result });
+      return res.json({ status: 'ok', 
+      // data: CV 
+    });
     });
 
     
