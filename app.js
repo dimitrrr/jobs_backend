@@ -38,6 +38,11 @@ const Vacancies = mongoose.model('Vacancies');
 const Feedback = mongoose.model('Feedback');
 const CVs = mongoose.model('CVs');
 
+app.get('/', async(req, res) => {
+
+  return res.json({ test: 'hello' });
+});
+
 app.post('/register', async(req, res) => {
 
   const { username, email, password, timeZone } = req.body;
@@ -59,7 +64,6 @@ app.post('/register', async(req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  console.log('TRY TO LOGIN')
   const { email, password } = req.body;
 
   const user = await Users.findOne({ email });
