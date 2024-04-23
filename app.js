@@ -7,15 +7,16 @@ app.use(cors());
 const bcryptjs = require('bcryptjs');
 const pdf = require('html-pdf');
 const fs = require('fs');
+require('dotenv').config()
 
 const pdfTemplate_ukrainian = require('./documents/template_ukrainian.js');
 const pdfTemplate_english = require('./documents/template_english.js');
 
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'da23hkj235ksdf98gsdodgs34t-s]dg-]=|sgd/sdf,scxfdsd--243tewfds';
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const mongoUrl = `mongodb+srv://admin:test@cluster0.iy3fwj2.mongodb.net/`;
+const mongoUrl = process.env.MONGO_URL;
 
 mongoose.connect(mongoUrl).then(() => {
     console.log('Connected to database!');
